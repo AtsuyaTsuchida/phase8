@@ -1,0 +1,104 @@
+// PHASE/8 voice 3; trigger-to-envelope path stays in the signal domain.
+Buffer events("p8_events"); Buffer samplebuf("p8_sample");
+Param gain(0.6); Param pan(0); Param tune(0); Param decay(1); Param color(0.5); Param drive(0.15);
+Param material(0.6); Param sampleframes(48000); Param samplesr(48000); Param external(0);
+History index(0); History oldcode(-1); History cursor(0); History oldphase(0);
+History g(0); History pn(0); History col(0.5); History mat(0.5); History drv(0.1);
+History nseed(5249); History lowpass(0); History hpold(0); History hpout(0); History cooldown(1);
+History age0(100); History vel0(0); History hz0(100); History de0(0.1); History tim0(0.5); History ph0(0); History start0(0); History rate0(1); History last0(0); History carry0(0); History fade0(1);
+History age1(100); History vel1(0); History hz1(100); History de1(0.1); History tim1(0.5); History ph1(0); History start1(0); History rate1(1); History last1(0); History carry1(0); History fade1(1);
+History age2(100); History vel2(0); History hz2(100); History de2(0.1); History tim2(0.5); History ph2(0); History start2(0); History rate2(1); History last2(0); History carry2(0); History fade2(1);
+History age3(100); History vel3(0); History hz3(100); History de3(0.1); History tim3(0.5); History ph3(0); History start3(0); History rate3(1); History last3(0); History carry3(0); History fade3(1);
+
+sm=min(1,150/samplerate);
+g=g+(gain-g)*sm; pn=pn+(pan-pn)*sm; col=col+(color-col)*sm; mat=mat+(material-mat)*sm; drv=drv+(drive-drv)*sm;
+idx=index; slot=cursor;
+if (in2 != oldcode || in1 < oldphase) { idx=0; }
+bank=floor(in2)%8;
+row=bank*8192+2*1024+min(idx,1023);
+et=peek(events,row,0); ev=0; pit=1; dec=1; tone=0.5;
+if (in3>0 && idx<1024 && et<=in1 && cooldown>=0.003) {
+ ev=peek(events,row,1); pit=peek(events,row,2); dec=peek(events,row,3); tone=peek(events,row,4);
+ idx=idx+1;
+}
+if(ev>0) { slot=(cursor+1)%4; }
+index=idx; oldcode=in2; oldphase=in1; cursor=slot;
+cooldown=ev>0?0:cooldown+1/samplerate;
+ns=(nseed*16807)%2147483647; nseed=ns; white=ns/1073741823.5-1;
+lowpass=lowpass+(white-lowpass)*(1-exp(-twopi*1600/samplerate));
+high=white-lowpass;
+sum=0;
+
+cy0=carry0; fd0=fade0;
+a0=age0; v0=vel0; f0=hz0; d0=de0; t0=tim0; p0=ph0; st0=start0; rt0=rate0;
+if(ev>0 && slot==0) {
+ cy0=last0; fd0=0; a0=0; v0=ev; f0=3700*pow(2,tune/12)*max(0.2,pit);
+ d0=max(0.003,0.065*dec*decay); t0=clamp(tone*0.35+col*0.3+mat*0.35,0,1);
+ p0=0; st0=fract(pit*0.371+tone*0.613)*max(1,sampleframes-2048);
+ rt0=pow(2,tune/12)*(tone>0.75?-1:1)*(0.55+pit*0.55);
+}
+a0=min(100,a0+1/samplerate);
+e0=exp(-a0/d0); at0=min(1,a0*3000);
+p0=fract(p0+min(8500,f0)/samplerate);
+s0=(0.38*high+0.25*sin(p0*twopi)*sin(p0*twopi*1.414+sin(a0*19231)*t0))*e0;
+fd0=min(1,fd0+1/(0.0015*samplerate));
+render0=s0*v0*at0*fd0+cy0*(1-fd0);
+sum=sum+render0; last0=render0; carry0=cy0; fade0=fd0;
+age0=a0; vel0=v0; hz0=f0; de0=d0; tim0=t0; ph0=p0; start0=st0; rate0=rt0;
+
+cy1=carry1; fd1=fade1;
+a1=age1; v1=vel1; f1=hz1; d1=de1; t1=tim1; p1=ph1; st1=start1; rt1=rate1;
+if(ev>0 && slot==1) {
+ cy1=last1; fd1=0; a1=0; v1=ev; f1=3700*pow(2,tune/12)*max(0.2,pit);
+ d1=max(0.003,0.065*dec*decay); t1=clamp(tone*0.35+col*0.3+mat*0.35,0,1);
+ p1=0; st1=fract(pit*0.371+tone*0.613)*max(1,sampleframes-2048);
+ rt1=pow(2,tune/12)*(tone>0.75?-1:1)*(0.55+pit*0.55);
+}
+a1=min(100,a1+1/samplerate);
+e1=exp(-a1/d1); at1=min(1,a1*3000);
+p1=fract(p1+min(8500,f1)/samplerate);
+s1=(0.38*high+0.25*sin(p1*twopi)*sin(p1*twopi*1.414+sin(a1*19231)*t1))*e1;
+fd1=min(1,fd1+1/(0.0015*samplerate));
+render1=s1*v1*at1*fd1+cy1*(1-fd1);
+sum=sum+render1; last1=render1; carry1=cy1; fade1=fd1;
+age1=a1; vel1=v1; hz1=f1; de1=d1; tim1=t1; ph1=p1; start1=st1; rate1=rt1;
+
+cy2=carry2; fd2=fade2;
+a2=age2; v2=vel2; f2=hz2; d2=de2; t2=tim2; p2=ph2; st2=start2; rt2=rate2;
+if(ev>0 && slot==2) {
+ cy2=last2; fd2=0; a2=0; v2=ev; f2=3700*pow(2,tune/12)*max(0.2,pit);
+ d2=max(0.003,0.065*dec*decay); t2=clamp(tone*0.35+col*0.3+mat*0.35,0,1);
+ p2=0; st2=fract(pit*0.371+tone*0.613)*max(1,sampleframes-2048);
+ rt2=pow(2,tune/12)*(tone>0.75?-1:1)*(0.55+pit*0.55);
+}
+a2=min(100,a2+1/samplerate);
+e2=exp(-a2/d2); at2=min(1,a2*3000);
+p2=fract(p2+min(8500,f2)/samplerate);
+s2=(0.38*high+0.25*sin(p2*twopi)*sin(p2*twopi*1.414+sin(a2*19231)*t2))*e2;
+fd2=min(1,fd2+1/(0.0015*samplerate));
+render2=s2*v2*at2*fd2+cy2*(1-fd2);
+sum=sum+render2; last2=render2; carry2=cy2; fade2=fd2;
+age2=a2; vel2=v2; hz2=f2; de2=d2; tim2=t2; ph2=p2; start2=st2; rate2=rt2;
+
+cy3=carry3; fd3=fade3;
+a3=age3; v3=vel3; f3=hz3; d3=de3; t3=tim3; p3=ph3; st3=start3; rt3=rate3;
+if(ev>0 && slot==3) {
+ cy3=last3; fd3=0; a3=0; v3=ev; f3=3700*pow(2,tune/12)*max(0.2,pit);
+ d3=max(0.003,0.065*dec*decay); t3=clamp(tone*0.35+col*0.3+mat*0.35,0,1);
+ p3=0; st3=fract(pit*0.371+tone*0.613)*max(1,sampleframes-2048);
+ rt3=pow(2,tune/12)*(tone>0.75?-1:1)*(0.55+pit*0.55);
+}
+a3=min(100,a3+1/samplerate);
+e3=exp(-a3/d3); at3=min(1,a3*3000);
+p3=fract(p3+min(8500,f3)/samplerate);
+s3=(0.38*high+0.25*sin(p3*twopi)*sin(p3*twopi*1.414+sin(a3*19231)*t3))*e3;
+fd3=min(1,fd3+1/(0.0015*samplerate));
+render3=s3*v3*at3*fd3+cy3*(1-fd3);
+sum=sum+render3; last3=render3; carry3=cy3; fade3=fd3;
+age3=a3; vel3=v3; hz3=f3; de3=d3; tim3=t3; ph3=p3; start3=st3; rate3=rt3;
+
+sh=tanh(sum*(1+drv*3))/(1+drv*1.6);
+hp=sh-hpold+exp(-twopi*8/samplerate)*hpout; hpold=sh; hpout=hp;
+audio=hp*g*0.48;
+out1=audio*sqrt((1-clamp(pn,-1,1))*0.5);
+out2=audio*sqrt((1+clamp(pn,-1,1))*0.5);

@@ -1,0 +1,163 @@
+{
+  "patcher": {
+    "fileversion": 1,
+    "appversion": {
+      "major": 8,
+      "minor": 6,
+      "revision": 5,
+      "architecture": "x64",
+      "modernui": 1
+    },
+    "classnamespace": "dsp.gen",
+    "rect": [
+      60,
+      60,
+      1020,
+      840
+    ],
+    "boxes": [
+      {
+        "box": {
+          "id": "code",
+          "maxclass": "codebox",
+          "numinlets": 0,
+          "numoutlets": 5,
+          "code": "// Audio-rate phrase clock; UI never schedules individual notes.\nParam running(0); Param speed(1); Param duration(4); Param ready(1);\nParam hold(0); Param holdbank(0); Param restart(0);\nHistory phase(0); History bank(0); History epoch(0); History oldreset(-1); History span(4);\nHistory smoothspeed(1);\nsmoothspeed = smoothspeed + (clamp(speed,0.25,4)-smoothspeed)*min(1,100/samplerate);\np = phase; b=bank; cycleCount=epoch; dur=span;\nif (restart != oldreset) { p=0; b=0; cycleCount=cycleCount+1; dur=max(0.25,duration); }\nif (running > 0) {\n p = p + smoothspeed / (max(0.25,dur)*samplerate);\n if (p >= 1) { p=p-1; cycleCount=cycleCount+1; b=hold>0?holdbank:ready; dur=max(0.25,duration); }\n}\nphase=p; bank=b; epoch=cycleCount; oldreset=restart; span=dur;\nout1=p; out2=b+cycleCount*8; out3=running; out4=p; out5=b+cycleCount*8;\n",
+          "patching_rect": [
+            60,
+            60,
+            920,
+            660
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "o0",
+          "maxclass": "newobj",
+          "text": "out 1",
+          "patching_rect": [
+            60,
+            755,
+            55,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "o1",
+          "maxclass": "newobj",
+          "text": "out 2",
+          "patching_rect": [
+            150,
+            755,
+            55,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "o2",
+          "maxclass": "newobj",
+          "text": "out 3",
+          "patching_rect": [
+            240,
+            755,
+            55,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "o3",
+          "maxclass": "newobj",
+          "text": "out 4",
+          "patching_rect": [
+            330,
+            755,
+            55,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "o4",
+          "maxclass": "newobj",
+          "text": "out 5",
+          "patching_rect": [
+            420,
+            755,
+            55,
+            22
+          ]
+        }
+      }
+    ],
+    "lines": [
+      {
+        "patchline": {
+          "source": [
+            "code",
+            0
+          ],
+          "destination": [
+            "o0",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "code",
+            1
+          ],
+          "destination": [
+            "o1",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "code",
+            2
+          ],
+          "destination": [
+            "o2",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "code",
+            3
+          ],
+          "destination": [
+            "o3",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "code",
+            4
+          ],
+          "destination": [
+            "o4",
+            0
+          ]
+        }
+      }
+    ]
+  }
+}

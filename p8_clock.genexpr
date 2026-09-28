@@ -1,0 +1,14 @@
+// Audio-rate phrase clock; UI never schedules individual notes.
+Param running(0); Param speed(1); Param duration(4); Param ready(1);
+Param hold(0); Param holdbank(0); Param restart(0);
+History phase(0); History bank(0); History epoch(0); History oldreset(-1); History span(4);
+History smoothspeed(1);
+smoothspeed = smoothspeed + (clamp(speed,0.25,4)-smoothspeed)*min(1,100/samplerate);
+p = phase; b=bank; cycleCount=epoch; dur=span;
+if (restart != oldreset) { p=0; b=0; cycleCount=cycleCount+1; dur=max(0.25,duration); }
+if (running > 0) {
+ p = p + smoothspeed / (max(0.25,dur)*samplerate);
+ if (p >= 1) { p=p-1; cycleCount=cycleCount+1; b=hold>0?holdbank:ready; dur=max(0.25,duration); }
+}
+phase=p; bank=b; epoch=cycleCount; oldreset=restart; span=dur;
+out1=p; out2=b+cycleCount*8; out3=running; out4=p; out5=b+cycleCount*8;

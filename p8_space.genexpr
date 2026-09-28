@@ -1,0 +1,21 @@
+// Damped feedback delay network + stereo echo, all feedback bounded.
+Param space(0.25); Param feedback(0.35); Param delaytime(0.19); Param repeat(0);
+Delay left(768000); Delay right(768000);
+Delay d1(48000); Delay d2(48000); Delay d3(48000); Delay d4(48000);
+History lp1(0); History lp2(0); History lp3(0); History lp4(0); History wet(0); History dt(0.19);
+wet=wet+(space-wet)*min(1,50/samplerate);
+dt=dt+(delaytime-dt)*min(1,3/samplerate);
+tl=left.read(clamp(dt,0.013,1.7)*samplerate,interp="linear");
+tr=right.read(clamp(dt*1.319,0.013,1.9)*samplerate,interp="linear");
+fb=clamp(feedback,0,0.76);
+left.write(tanh(in1+tr*fb)); right.write(tanh(in2+tl*fb));
+x1=d1.read(samplerate*0.0371); x2=d2.read(samplerate*0.0533);
+x3=d3.read(samplerate*0.0717); x4=d4.read(samplerate*0.0893);
+lp1=lp1+(x1-lp1)*0.24; lp2=lp2+(x2-lp2)*0.24; lp3=lp3+(x3-lp3)*0.24; lp4=lp4+(x4-lp4)*0.24;
+common=(lp1+lp2+lp3+lp4)*0.5;
+input=(in1+in2)*0.18+(tl+tr)*0.05;
+g=0.64+clamp(space,0,1)*0.18;
+d1.write(tanh(input+(common-lp1)*g)); d2.write(tanh(input+(common-lp2)*g));
+d3.write(tanh(input+(common-lp3)*g)); d4.write(tanh(input+(common-lp4)*g));
+out1=(tl*0.48+(x1+x3)*0.42)*wet;
+out2=(tr*0.48+(x2+x4)*0.42)*wet;

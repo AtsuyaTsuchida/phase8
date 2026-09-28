@@ -1,0 +1,163 @@
+{
+  "patcher": {
+    "fileversion": 1,
+    "appversion": {
+      "major": 8,
+      "minor": 6,
+      "revision": 5,
+      "architecture": "x64",
+      "modernui": 1
+    },
+    "classnamespace": "dsp.gen",
+    "rect": [
+      60,
+      60,
+      1020,
+      840
+    ],
+    "boxes": [
+      {
+        "box": {
+          "id": "code",
+          "maxclass": "codebox",
+          "numinlets": 3,
+          "numoutlets": 2,
+          "code": "// PHASE/8 voice 2; trigger-to-envelope path stays in the signal domain.\nBuffer events(\"p8_events\"); Buffer samplebuf(\"p8_sample\");\nParam gain(0.6); Param pan(0); Param tune(0); Param decay(1); Param color(0.5); Param drive(0.15);\nParam material(0.6); Param sampleframes(48000); Param samplesr(48000); Param external(0);\nHistory index(0); History oldcode(-1); History cursor(0); History oldphase(0);\nHistory g(0); History pn(0); History col(0.5); History mat(0.5); History drv(0.1);\nHistory nseed(3540); History lowpass(0); History hpold(0); History hpout(0); History cooldown(1);\nHistory age0(100); History vel0(0); History hz0(100); History de0(0.1); History tim0(0.5); History ph0(0); History start0(0); History rate0(1); History last0(0); History carry0(0); History fade0(1);\nHistory age1(100); History vel1(0); History hz1(100); History de1(0.1); History tim1(0.5); History ph1(0); History start1(0); History rate1(1); History last1(0); History carry1(0); History fade1(1);\nHistory age2(100); History vel2(0); History hz2(100); History de2(0.1); History tim2(0.5); History ph2(0); History start2(0); History rate2(1); History last2(0); History carry2(0); History fade2(1);\nHistory age3(100); History vel3(0); History hz3(100); History de3(0.1); History tim3(0.5); History ph3(0); History start3(0); History rate3(1); History last3(0); History carry3(0); History fade3(1);\n\nsm=min(1,150/samplerate);\ng=g+(gain-g)*sm; pn=pn+(pan-pn)*sm; col=col+(color-col)*sm; mat=mat+(material-mat)*sm; drv=drv+(drive-drv)*sm;\nidx=index; slot=cursor;\nif (in2 != oldcode || in1 < oldphase) { idx=0; }\nbank=floor(in2)%8;\nrow=bank*8192+1*1024+min(idx,1023);\net=peek(events,row,0); ev=0; pit=1; dec=1; tone=0.5;\nif (in3>0 && idx<1024 && et<=in1 && cooldown>=0.003) {\n ev=peek(events,row,1); pit=peek(events,row,2); dec=peek(events,row,3); tone=peek(events,row,4);\n idx=idx+1;\n}\nif(ev>0) { slot=(cursor+1)%4; }\nindex=idx; oldcode=in2; oldphase=in1; cursor=slot;\ncooldown=ev>0?0:cooldown+1/samplerate;\nns=(nseed*16807)%2147483647; nseed=ns; white=ns/1073741823.5-1;\nlowpass=lowpass+(white-lowpass)*(1-exp(-twopi*1600/samplerate));\nhigh=white-lowpass;\nsum=0;\n\ncy0=carry0; fd0=fade0;\na0=age0; v0=vel0; f0=hz0; d0=de0; t0=tim0; p0=ph0; st0=start0; rt0=rate0;\nif(ev>0 && slot==0) {\n cy0=last0; fd0=0; a0=0; v0=ev; f0=172*pow(2,tune/12)*max(0.2,pit);\n d0=max(0.003,0.18*dec*decay); t0=clamp(tone*0.35+col*0.3+mat*0.35,0,1);\n p0=0; st0=fract(pit*0.371+tone*0.613)*max(1,sampleframes-2048);\n rt0=pow(2,tune/12)*(tone>0.75?-1:1)*(0.55+pit*0.55);\n}\na0=min(100,a0+1/samplerate);\ne0=exp(-a0/d0); at0=min(1,a0*3000);\np0=fract(p0+f0/samplerate);\ns0=(0.46*sin(p0*twopi+sin(p0*twopi*1.47)*t0*1.2)+0.22*sin(p0*twopi*1.73))*exp(-a0/(d0*0.5))+high*e0*(0.33+t0*0.5);\nfd0=min(1,fd0+1/(0.0015*samplerate));\nrender0=s0*v0*at0*fd0+cy0*(1-fd0);\nsum=sum+render0; last0=render0; carry0=cy0; fade0=fd0;\nage0=a0; vel0=v0; hz0=f0; de0=d0; tim0=t0; ph0=p0; start0=st0; rate0=rt0;\n\ncy1=carry1; fd1=fade1;\na1=age1; v1=vel1; f1=hz1; d1=de1; t1=tim1; p1=ph1; st1=start1; rt1=rate1;\nif(ev>0 && slot==1) {\n cy1=last1; fd1=0; a1=0; v1=ev; f1=172*pow(2,tune/12)*max(0.2,pit);\n d1=max(0.003,0.18*dec*decay); t1=clamp(tone*0.35+col*0.3+mat*0.35,0,1);\n p1=0; st1=fract(pit*0.371+tone*0.613)*max(1,sampleframes-2048);\n rt1=pow(2,tune/12)*(tone>0.75?-1:1)*(0.55+pit*0.55);\n}\na1=min(100,a1+1/samplerate);\ne1=exp(-a1/d1); at1=min(1,a1*3000);\np1=fract(p1+f1/samplerate);\ns1=(0.46*sin(p1*twopi+sin(p1*twopi*1.47)*t1*1.2)+0.22*sin(p1*twopi*1.73))*exp(-a1/(d1*0.5))+high*e1*(0.33+t1*0.5);\nfd1=min(1,fd1+1/(0.0015*samplerate));\nrender1=s1*v1*at1*fd1+cy1*(1-fd1);\nsum=sum+render1; last1=render1; carry1=cy1; fade1=fd1;\nage1=a1; vel1=v1; hz1=f1; de1=d1; tim1=t1; ph1=p1; start1=st1; rate1=rt1;\n\ncy2=carry2; fd2=fade2;\na2=age2; v2=vel2; f2=hz2; d2=de2; t2=tim2; p2=ph2; st2=start2; rt2=rate2;\nif(ev>0 && slot==2) {\n cy2=last2; fd2=0; a2=0; v2=ev; f2=172*pow(2,tune/12)*max(0.2,pit);\n d2=max(0.003,0.18*dec*decay); t2=clamp(tone*0.35+col*0.3+mat*0.35,0,1);\n p2=0; st2=fract(pit*0.371+tone*0.613)*max(1,sampleframes-2048);\n rt2=pow(2,tune/12)*(tone>0.75?-1:1)*(0.55+pit*0.55);\n}\na2=min(100,a2+1/samplerate);\ne2=exp(-a2/d2); at2=min(1,a2*3000);\np2=fract(p2+f2/samplerate);\ns2=(0.46*sin(p2*twopi+sin(p2*twopi*1.47)*t2*1.2)+0.22*sin(p2*twopi*1.73))*exp(-a2/(d2*0.5))+high*e2*(0.33+t2*0.5);\nfd2=min(1,fd2+1/(0.0015*samplerate));\nrender2=s2*v2*at2*fd2+cy2*(1-fd2);\nsum=sum+render2; last2=render2; carry2=cy2; fade2=fd2;\nage2=a2; vel2=v2; hz2=f2; de2=d2; tim2=t2; ph2=p2; start2=st2; rate2=rt2;\n\ncy3=carry3; fd3=fade3;\na3=age3; v3=vel3; f3=hz3; d3=de3; t3=tim3; p3=ph3; st3=start3; rt3=rate3;\nif(ev>0 && slot==3) {\n cy3=last3; fd3=0; a3=0; v3=ev; f3=172*pow(2,tune/12)*max(0.2,pit);\n d3=max(0.003,0.18*dec*decay); t3=clamp(tone*0.35+col*0.3+mat*0.35,0,1);\n p3=0; st3=fract(pit*0.371+tone*0.613)*max(1,sampleframes-2048);\n rt3=pow(2,tune/12)*(tone>0.75?-1:1)*(0.55+pit*0.55);\n}\na3=min(100,a3+1/samplerate);\ne3=exp(-a3/d3); at3=min(1,a3*3000);\np3=fract(p3+f3/samplerate);\ns3=(0.46*sin(p3*twopi+sin(p3*twopi*1.47)*t3*1.2)+0.22*sin(p3*twopi*1.73))*exp(-a3/(d3*0.5))+high*e3*(0.33+t3*0.5);\nfd3=min(1,fd3+1/(0.0015*samplerate));\nrender3=s3*v3*at3*fd3+cy3*(1-fd3);\nsum=sum+render3; last3=render3; carry3=cy3; fade3=fd3;\nage3=a3; vel3=v3; hz3=f3; de3=d3; tim3=t3; ph3=p3; start3=st3; rate3=rt3;\n\nsh=tanh(sum*(1+drv*3))/(1+drv*1.6);\nhp=sh-hpold+exp(-twopi*8/samplerate)*hpout; hpold=sh; hpout=hp;\naudio=hp*g*0.48;\nout1=audio*sqrt((1-clamp(pn,-1,1))*0.5);\nout2=audio*sqrt((1+clamp(pn,-1,1))*0.5);\n",
+          "patching_rect": [
+            60,
+            60,
+            920,
+            660
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "i0",
+          "maxclass": "newobj",
+          "text": "in 1",
+          "patching_rect": [
+            60,
+            15,
+            55,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "i1",
+          "maxclass": "newobj",
+          "text": "in 2",
+          "patching_rect": [
+            150,
+            15,
+            55,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "i2",
+          "maxclass": "newobj",
+          "text": "in 3",
+          "patching_rect": [
+            240,
+            15,
+            55,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "o0",
+          "maxclass": "newobj",
+          "text": "out 1",
+          "patching_rect": [
+            60,
+            755,
+            55,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "o1",
+          "maxclass": "newobj",
+          "text": "out 2",
+          "patching_rect": [
+            150,
+            755,
+            55,
+            22
+          ]
+        }
+      }
+    ],
+    "lines": [
+      {
+        "patchline": {
+          "source": [
+            "i0",
+            0
+          ],
+          "destination": [
+            "code",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "i1",
+            0
+          ],
+          "destination": [
+            "code",
+            1
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "i2",
+            0
+          ],
+          "destination": [
+            "code",
+            2
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "code",
+            0
+          ],
+          "destination": [
+            "o0",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "code",
+            1
+          ],
+          "destination": [
+            "o1",
+            0
+          ]
+        }
+      }
+    ]
+  }
+}

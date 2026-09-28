@@ -1,0 +1,268 @@
+{
+  "date": "2026-09-28",
+  "max_version": "8.6.5",
+  "platform": "macOS",
+  "model": {
+    "checks": 1320,
+    "events": 210818,
+    "maxLaneEvents": 259,
+    "status": "pass",
+    "details": "10 scenes; density/warp/fragment extremes; speeds 0.25x/4x; 4 evolving windows per case; fixed-seed determinism; strict ordering; minimum event interval; bounds; probability zero."
+  },
+  "model_extremes": {
+    "status": "pass",
+    "checks": 878,
+    "notes": 1119388,
+    "maxLane": 401,
+    "scope": "All window lengths; Free/Grid; 20/120/300 BPM; speeds 0.25/1/4; 1/64 steps; rate/interval extremes; 192-second dense phrase reaches final 3%; malformed scenes rejected"
+  },
+  "control": {
+    "status": "pass",
+    "checks": 177,
+    "scope": "Mocked Max control API: bank isolation, Freeze bank protection, Undo, A/B morph, JSON persistence, 64-event editor, Euclidean accents. Native audio and object APIs tested separately."
+  },
+  "native_rates": [
+    {
+      "requested": [
+        44100,
+        64,
+        0
+      ],
+      "actualSR": 44100,
+      "actualVS": 64,
+      "cpu": [
+        13,
+        13,
+        8,
+        13
+      ]
+    },
+    {
+      "requested": [
+        44100,
+        128,
+        2
+      ],
+      "actualSR": 44100,
+      "actualVS": 128,
+      "cpu": [
+        31,
+        33,
+        29,
+        33
+      ]
+    },
+    {
+      "requested": [
+        48000,
+        64,
+        1
+      ],
+      "actualSR": 48000,
+      "actualVS": 64,
+      "cpu": [
+        22,
+        26,
+        26,
+        24
+      ]
+    },
+    {
+      "requested": [
+        48000,
+        128,
+        1
+      ],
+      "actualSR": 48000,
+      "actualVS": 128,
+      "cpu": [
+        27,
+        26,
+        27,
+        21
+      ]
+    },
+    {
+      "requested": [
+        96000,
+        64,
+        1
+      ],
+      "actualSR": 96000,
+      "actualVS": 64,
+      "cpu": [
+        14,
+        18,
+        17,
+        15
+      ]
+    },
+    {
+      "requested": [
+        96000,
+        128,
+        2
+      ],
+      "actualSR": 96000,
+      "actualVS": 128,
+      "cpu": [
+        29,
+        29,
+        32,
+        31
+      ]
+    }
+  ],
+  "native_persistence_and_freeze": [
+    {
+      "persistenceEqual": true,
+      "externalFrames": 20017,
+      "unicodeName": "\u7834\u7247\u30fb\u6df1\u591c / \u00e9"
+    },
+    {
+      "longSampleFrames": 132301,
+      "longSampleRate": 48000
+    },
+    {
+      "shortSampleFrames": 20017
+    },
+    {
+      "loopHashMatches": true
+    },
+    {
+      "frozenRoundTrip": true
+    }
+  ],
+  "external_sample_copy_sha256_identical": true,
+  "stress": {
+    "seconds": 1200.7851247165534,
+    "sample_rate": 44100,
+    "finite": true,
+    "peak": [
+      0.2854969799518585,
+      0.2859632074832916
+    ],
+    "mean": [
+      -1.8614644592777446e-07,
+      -1.4141011204200585e-07
+    ],
+    "zero_frames": 0,
+    "longest_zero_ms": 0.0,
+    "cpu_percent": {
+      "mean": 24.129411764705882,
+      "max": 27,
+      "median": 25.5,
+      "scope": "Max DSP CPU meter in the test session"
+    },
+    "peak_dbfs": -10.873796806990244
+  },
+  "demos": [
+    {
+      "path": "demos/01-shards.wav",
+      "sample_rate": 44100,
+      "channels": 2,
+      "seconds": 24.98467120181406,
+      "finite": true,
+      "peak": [
+        0.17565055191516876,
+        0.18391603231430054
+      ],
+      "rms": [
+        0.02711273916065693,
+        0.026657601818442345
+      ],
+      "mean": [
+        -7.3210617301811e-06,
+        -6.728483640472405e-06
+      ],
+      "nonzero": [
+        1101824,
+        1101824
+      ]
+    },
+    {
+      "path": "demos/02-quiet-fractures.wav",
+      "sample_rate": 44100,
+      "channels": 2,
+      "seconds": 25.920725623582765,
+      "finite": true,
+      "peak": [
+        0.1385982483625412,
+        0.13725116848945618
+      ],
+      "rms": [
+        0.01580914855003357,
+        0.016137879341840744
+      ],
+      "mean": [
+        -2.7594419407250825e-06,
+        -2.8040478809998604e-06
+      ],
+      "nonzero": [
+        1143104,
+        1143104
+      ]
+    },
+    {
+      "path": "demos/03-swarm.wav",
+      "sample_rate": 44100,
+      "channels": 2,
+      "seconds": 24.961451247165535,
+      "finite": true,
+      "peak": [
+        0.1994701772928238,
+        0.19215238094329834
+      ],
+      "rms": [
+        0.034627124667167664,
+        0.03398441895842552
+      ],
+      "mean": [
+        -1.6339757848982117e-06,
+        -8.887628268894332e-07
+      ],
+      "nonzero": [
+        1100800,
+        1100800
+      ]
+    }
+  ],
+  "release_smoke": {
+    "seedWrapValid": true,
+    "arraysValid": true,
+    "loaded": true,
+    "event": "COMPLETE",
+    "audio": {
+      "seconds": 5.131609977324263,
+      "sample_rate": 44100,
+      "peak": [
+        0.16188178956508636,
+        0.15203842520713806
+      ],
+      "finite": true
+    }
+  },
+  "rebuild": {
+    "status": "pass",
+    "gendsp_files": 10,
+    "main_ui": "identical",
+    "engine": "identical",
+    "project": "identical",
+    "original_sample": "identical"
+  },
+  "limits": [
+    "Final mouse interaction check blocked by locked macOS session",
+    "Subjective listening evaluation not performed",
+    "Windows and other Max 8 versions not tested",
+    "True-peak compliance not claimed"
+  ],
+  "english_publication": {
+    "date": "2026-09-29",
+    "controller_assertions": 177,
+    "static_patch_checks": "pass",
+    "local_document_links": "pass",
+    "project_references": "pass",
+    "synthesis_and_generation_unchanged": true,
+    "scope": "English documentation and status strings; original non-ASCII fixture preserved as JSON escapes. Native audio stress test not repeated."
+  }
+}
